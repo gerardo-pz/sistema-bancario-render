@@ -1,3 +1,4 @@
+# Cambio mínimo para forzar migraciones en Render
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os
