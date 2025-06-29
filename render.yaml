@@ -3,7 +3,6 @@ services:
     name: sistema-bancario
     runtime: python
     buildCommand: "pip install -r requirements.txt"
-    preDeployCommand: "python manage.py migrate && python manage.py collectstatic --noinput"
     startCommand: "gunicorn sistema_bancario.wsgi:application"
     envVars:
       - key: DATABASE_URL
