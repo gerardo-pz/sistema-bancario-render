@@ -1,0 +1,57 @@
+{% extends "usuarios/base.html" %}
+{% block title %}Historial de inicio de sesión{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 mt-10">
+    <h3 class="text-xl font-bold mb-6">Historial de inicio de sesión</h3>
+    <form method="get" class="mb-6">
+        <div class="flex flex-wrap gap-4 items-end">
+            <div>
+                <label for="usuario_id" class="text-sm font-medium text-gray-700">Selecciona un usuario:</label>
+            </div>
+            <div>
+                <select name="usuario_id" id="usuario_id" class="block w-full border border-gray-300 rounded p-2" required>
+                    <option value="">-- Elegir usuario --</option>
+                    {% for u in usuarios %}
+                        <option value="{{ u.id }}" {% if usuario_seleccionado and usuario_seleccionado.id == u.id %}selected{% endif %}>
+                            {{ u.username }} ({{ u.first_name }} {{ u.last_name }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="bg-blue-600 text-white font-semibold px-4 py-2 rounded">Ver historial</button>
+            </div>
+        </div>
+    </form>
+
+    {% if usuario_seleccionado %}
+    <h5 class="text-lg font-semibold text-gray-800 mb-3">
+        Últimos inicios de sesión de <span class="text-blue-600 font-bold">{{ usuario_seleccionado.username }}</span>
+    </h5>
+    <table class="table-auto w-full border border-gray-200 divide-y divide-gray-200 mt-3">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="text-left p-2">Fecha y hora</th>
+                <th class="text-left p-2">Dirección IP</th>
+                <th class="text-left p-2">Dispositivo/Navegador</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sesion in sesiones %}
+            <tr>
+                <td class="p-2 border-t">{{ sesion.fecha|date:"d/m/Y H:i:s" }}</td>
+                <td class="p-2 border-t">{{ sesion.ip|default:"-" }}</td>
+                <td class="p-2 border-t">{{ sesion.user_agent|truncatechars:40 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center p-4 text-gray-600">No hay registros de inicio de sesión.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="inline-block bg-gray-500 text-white px-4 py-2 rounded mt-6">Volver al inicio</a>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "usuarios/base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 mt-10 max-w-2xl">
+  <h3 class="text-2xl font-semibold mb-4">Transferencia desde la cuenta {{ cuenta.numero_cuenta }}</h3>
+  <p class="mb-6 text-gray-700"><strong>Saldo disponible:</strong> S/. {{ cuenta.saldo }}</p>
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    {{ transferencia_form.as_p }}
+    <div class="flex gap-3">
+      <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded shadow">
+        Transferir
+      </button>
+      <a href="{% url 'detalle_cuenta' cuenta.id %}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded shadow">
+        Cancelar
+      </a>
+    </div>
+  </form>
+
+  {% if messages %}
+  <ul class="mt-6 space-y-2">
+    {% for message in messages %}
+    <li class="px-4 py-2 rounded text-white {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'error' %}bg-red-500{% else %}bg-blue-500{% endif %}">
+      {{ message }}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "usuarios/base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto mt-10 px-4">
+    <div class="flex flex-wrap gap-6">
+        <!-- Panel izquierdo -->
+        <div class="w-full md:w-1/2">
+            <div class="bg-white rounded shadow mb-6">
+                <div class="p-6">
+                    <h4 class="text-lg font-bold mb-4">Cuenta bancaria</h4>
+                    <p><strong>Número de cuenta:</strong> {{ cuenta.numero_cuenta }}</p>
+                    <p class="mt-2">
+                        <strong>Saldo actual:</strong>
+                        <span class="text-xl text-green-600">S/. {{ cuenta.saldo }}</span>
+                        <a href="{% url 'solicitar_prestamo' cuenta.id %}" class="ml-3 bg-blue-500 text-white text-sm py-1 px-3 rounded hover:bg-blue-600">
+                            Solicitar préstamo
+                        </a>
+                    </p>
+                    <p class="mt-2"><strong>Fecha de creación:</strong> {{ cuenta.fecha_creacion|date:"d/m/Y H:i" }}</p>
+
+                    <div class="flex justify-between gap-2 mt-4">
+                        {% if cuenta.tarjeta.exists %}
+                        <a href="{% url 'detalle_tarjeta' cuenta.tarjeta.first.id %}"
+                            class="bg-gray-600 text-white text-sm px-3 py-2 rounded w-full text-center">
+                            💳 Ver Tarjeta
+                        </a>
+                        {% else %}
+                        <form method="post" class="w-full">
+                            {% csrf_token %}
+                            <button type="submit" name="generar_tarjeta"
+                                class="bg-blue-600 text-white text-sm px-3 py-2 rounded w-full hover:bg-blue-700">
+                                ➕ Generar Tarjeta
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <a href="{% url 'transferir' cuenta.id %}"
+                            class="border border-blue-600 text-blue-600 text-sm px-3 py-2 rounded w-full text-center hover:bg-blue-50">
+                            🔁 Transferir
+                        </a>
+
+                        <form method="post" action="{% url 'eliminar_cuenta' cuenta.id %}" class="w-full">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="bg-red-600 text-white text-sm px-3 py-2 rounded w-full hover:bg-red-700"
+                                onclick="return confirm('¿Estás seguro de que deseas eliminar esta cuenta? Esta acción no se puede deshacer.');">
+                                🗑️ Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel derecho -->
+        <div class="w-full md:w-1/2">
+            <div class="bg-white rounded shadow">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h5 class="text-lg font-semibold">Últimos movimientos (5)</h5>
+                        <a href="{% url 'movimientos_cuenta' cuenta.id %}" class="text-blue-600 text-sm border border-blue-600 px-3 py-1 rounded hover:bg-blue-50">
+                            Ver todos
+                        </a>
+                    </div>
+
+                    {% if transacciones %}
+                    <div class="overflow-x-auto">
+                        <table class="table-auto w-full text-sm divide-y divide-gray-200">
+                            <thead class="bg-gray-100 text-left">
+                                <tr>
+                                    <th class="p-2">Fecha</th>
+                                    <th class="p-2">Tipo</th>
+                                    <th class="p-2">Monto</th>
+                                    <th class="p-2">Cuenta destino</th>
+                                    <th class="p-2">Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in transacciones %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="p-2">{{ t.fecha|date:"d/m/Y H:i" }}</td>
+                                    <td class="p-2">
+                                        {% if t.tipo == "DEPOSITO" %}
+                                            <span class="inline-block bg-gray-400 text-white text-xs px-2 py-1 rounded">Ingreso</span>
+                                        {% elif t.tipo == "RETIRO" %}
+                                            <span class="inline-block bg-gray-800 text-white text-xs px-2 py-1 rounded">Salida</span>
+                                        {% elif t.tipo == "TRANSFERENCIA" %}
+                                            {% if t.cuenta_origen == cuenta %}
+                                                <span class="inline-block bg-gray-800 text-white text-xs px-2 py-1 rounded">Transferencia salida</span>
+                                            {% else %}
+                                                <span class="inline-block bg-gray-400 text-white text-xs px-2 py-1 rounded">Transferencia ingreso</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-2">
+                                        {% if t.tipo == "DEPOSITO" %}
+                                            <span class="text-green-600 font-medium">+ S/. {{ t.monto }}</span>
+                                        {% elif t.cuenta_origen == cuenta %}
+                                            <span class="text-red-600 font-medium">- S/. {{ t.monto }}</span>
+                                        {% else %}
+                                            <span class="text-green-600 font-medium">+ S/. {{ t.monto }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-2">
+                                        {% if t.tipo == "TRANSFERENCIA" %}
+                                            {% if t.cuenta_origen == cuenta %}
+                                                {{ t.cuenta_destino.numero_cuenta }}
+                                            {% else %}
+                                                {{ t.cuenta_origen.numero_cuenta }}
+                                            {% endif %}
+                                        {% else %}
+                                            ---
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-2">{{ t.descripcion|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500">No hay transacciones registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

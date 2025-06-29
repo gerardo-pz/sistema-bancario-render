@@ -1,0 +1,59 @@
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# Archivos de Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+
+# Base de datos
+db.sqlite3
+*.db
+
+# Archivos de configuración sensibles
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
+
+# Archivos temporales
+*.swp
+*.swo
+*~
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos estáticos recolectados
+/staticfiles/
+/static/
+/media/
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos de despliegue
+*.tar.gz
+*.zip
+
+# Archivos de cache
+.cache/
+.pytest_cache/
+
+# Archivos de coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
